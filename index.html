@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Step Duel</title>
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Step Duel">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+/* Clean White: white page, blue for selection, orange for action. */
+:root{
+  --bg:#ffffff; --ink:#111827; --muted:#6b7280; --line:#e8ebf0; --soft:#f6f8fb;
+  --blue:#2563eb; --blue-soft:#eaf1ff; --orange:#f97316;
+  --font:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5}
+.wrap{max-width:640px;margin:0 auto;padding-top:max(28px,env(safe-area-inset-top,0px));padding-bottom:max(56px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
+h1{font-size:22px;font-weight:800;margin:0;letter-spacing:-.02em}
+h1 span{color:var(--orange)}
+h2{font-size:15px;font-weight:700;margin:0}
+.label{font-size:12px;font-weight:600;color:var(--muted)}
+[hidden]{display:none!important}
+
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.sync{font-size:12px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px}
+.sync i{width:7px;height:7px;border-radius:50%;background:#cbd5e1}
+.sync.on i{background:#22c55e}
+.sync.off i{background:var(--orange)}
+
+.who{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.who button{font:inherit;font-weight:700;font-size:16px;padding:14px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;transition:border-color .15s,background .15s}
+.who button[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+
+form{display:grid;gap:14px}
+.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+label{display:grid;gap:6px;min-width:0}
+input{font:inherit;font-variant-numeric:tabular-nums;font-size:16px;color:var(--ink);background:var(--soft);border:1.5px solid transparent;border-radius:12px;padding:11px 12px;width:100%;min-width:0;-webkit-appearance:none;appearance:none;min-height:46px}
+input:focus{outline:none;border-color:var(--blue);background:var(--bg)}
+.save{font:inherit;font-weight:700;font-size:16px;padding:14px;border-radius:14px;border:none;background:var(--orange);color:#fff;cursor:pointer}
+.save:disabled{opacity:.6;cursor:default}
+button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.msg{font-size:13px;font-weight:600;min-height:20px;margin:0;color:var(--muted)}
+.msg.ok{color:var(--blue)} .msg.err{color:#c2410c}
+
+.gate{display:grid;gap:12px;padding:18px;border-radius:16px;background:var(--soft)}
+.gate p{margin:0;color:var(--muted);font-size:14px}
+.gate input{background:var(--bg)}
+
+.chart{display:grid;gap:10px}
+.chart .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.legend{display:flex;gap:14px;font-size:13px;font-weight:600;color:var(--muted)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}
+svg{width:100%;height:auto;display:block}
+svg text{fill:var(--muted);font-family:var(--font);font-size:10px;font-variant-numeric:tabular-nums}
+.empty{padding:30px 12px;text-align:center;color:var(--muted);font-size:14px;background:var(--soft);border-radius:14px}
+hr{border:none;border-top:1px solid var(--line);margin:0}
+.foot{text-align:center}
+.link{font:inherit;font-size:12px;color:var(--muted);background:none;border:none;text-decoration:underline;cursor:pointer;padding:4px}
+
+@media (max-width:460px){.fields{grid-template-columns:1fr 1fr}.fields label:first-child{grid-column:1/-1}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>Step Duel<span>.</span></h1>
+    <span class="sync" id="sync"><i></i><span id="syncText">Connecting…</span></span>
+  </div>
+
+  <form class="gate" id="gate" hidden novalidate>
+    <h2>Enter your passcode</h2>
+    <p>Only Bipu and Noma can see this. You only need to do this once on each phone.</p>
+    <label for="pass"><span class="label">Passcode</span><input id="pass" type="password" autocomplete="current-password"></label>
+    <button class="save" type="submit" id="passBtn">Unlock</button>
+    <p class="msg" id="passMsg" role="status"></p>
+  </form>
+
+  <section id="app" style="display:grid;gap:14px" aria-label="Log a day">
+    <div class="who" role="group" aria-label="Who is logging">
+      <button type="button" id="who-bipu" aria-pressed="true">Bipu</button>
+      <button type="button" id="who-noma" aria-pressed="false">Noma</button>
+    </div>
+    <form id="logForm" novalidate>
+      <div class="fields">
+        <label for="fDate"><span class="label">Date</span><input type="date" id="fDate"></label>
+        <label for="fSteps"><span class="label">Steps</span><input type="number" id="fSteps" min="0" max="150000" step="1" inputmode="numeric" placeholder="8500"></label>
+        <label for="fWeight"><span class="label">Weight (kg)</span><input type="number" id="fWeight" min="20" max="400" step="0.1" inputmode="decimal" placeholder="64.2"></label>
+      </div>
+      <button class="save" type="submit" id="saveBtn">Save</button>
+      <p class="msg" id="msg" role="status"></p>
+    </form>
+  </section>
+
+  <hr>
+
+  <section class="chart" aria-labelledby="sH">
+    <div class="head"><h2 id="sH">Steps · last 14 days</h2><div class="legend" id="lg1"></div></div>
+    <div id="stepsChart"></div>
+  </section>
+
+  <section class="chart" aria-labelledby="wH">
+    <div class="head"><h2 id="wH">Weight (kg)</h2><div class="legend" id="lg2"></div></div>
+    <div id="weightChart"></div>
+  </section>
+
+  <div class="foot"><button class="link" type="button" id="lockBtn" hidden>Lock this phone</button></div>
+</div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
