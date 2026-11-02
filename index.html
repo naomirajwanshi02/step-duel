@@ -147,7 +147,26 @@ hr{border:none;border-top:1px solid var(--line);margin:0}
   <div class="foot"><button class="link" type="button" id="lockBtn" hidden>Lock this phone</button></div>
 </div>
 
-<script src="config.js"></script>
-<script src="app.js"></script>
+<script>
+  // Light/dark switcher. Self-contained so it never depends on app.js.
+  (function () {
+    var root = document.documentElement, light = document.getElementById("th-light"), dark = document.getElementById("th-dark"), meta = document.getElementById("themeColor");
+    var mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+    function isDark() { var t = root.getAttribute("data-theme"); return t ? t === "dark" : !!(mq && mq.matches); }
+    function sync() {
+      var d = isDark();
+      light.setAttribute("aria-pressed", String(!d)); dark.setAttribute("aria-pressed", String(d));
+      if (meta) meta.setAttribute("content", d ? "#000000" : "#ffffff");
+    }
+    function set(t) { root.setAttribute("data-theme", t); try { localStorage.setItem("step-duel-theme", t); } catch (_) {} sync(); }
+    light.addEventListener("click", function () { set("light"); });
+    dark.addEventListener("click", function () { set("dark"); });
+    if (mq) { if (mq.addEventListener) mq.addEventListener("change", sync); else if (mq.addListener) mq.addListener(sync); }
+    sync();
+  })();
+</script>
+<!-- Bump ?v= on every change so phones never mix a new page with an old cached script. -->
+<script src="config.js?v=6"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>

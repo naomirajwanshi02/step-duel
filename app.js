@@ -202,20 +202,7 @@
     } finally { $("saveBtn").disabled = false; }
   });
 
-  // ---------- theme ----------
-  const darkMQ = window.matchMedia("(prefers-color-scheme: dark)");
-  const isDark = () => { const t = document.documentElement.getAttribute("data-theme"); return t ? t === "dark" : darkMQ.matches; };
-  const syncThemeColor = () => {
-    const dark = isDark();
-    $("themeColor").setAttribute("content", dark ? "#000000" : "#ffffff");
-    $("th-light").setAttribute("aria-pressed", String(!dark));
-    $("th-dark").setAttribute("aria-pressed", String(dark));
-  };
-  const setTheme = t => { document.documentElement.setAttribute("data-theme", t); store.set("step-duel-theme", t); syncThemeColor(); };
-  $("th-light").addEventListener("click", () => setTheme("light"));
-  $("th-dark").addEventListener("click", () => setTheme("dark"));
-  darkMQ.addEventListener && darkMQ.addEventListener("change", syncThemeColor);
-  syncThemeColor();
+  // (The light/dark switcher lives in index.html so it works even if this file is stale.)
 
   // ---------- boot ----------
   const w = store.get("step-duel-who"); if (P.includes(w)) state.who = w;
