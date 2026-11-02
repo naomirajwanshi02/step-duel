@@ -132,7 +132,15 @@
     if (!remote || !state.pass || busy) return;
     busy = true;
     try {
-      state.entries = await fetchEntries();
+      const rows = await fetchEntries();
+      // A wrong passcode reads as an empty table, so double-check before showing nothing.
+      if (!rows.length && !(await checkPass(state.pass))) {
+        store.del("step-duel-pass"); state.pass = ""; clearInterval(timer);
+        showGate(true); setSync("", "Locked");
+        $("passMsg").textContent = "The passcode was changed. Enter the new one."; $("passMsg").className = "msg err";
+        return;
+      }
+      state.entries = rows;
       setSync("on", "Synced");
       render(); fillForm(true);
     } catch (_) { setSync("off", "Offline"); }
