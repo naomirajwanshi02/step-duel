@@ -4,7 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Step Duel</title>
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#ffffff" id="themeColor">
+<script>
+  // Apply the saved theme before the page paints, so it never flashes white.
+  try { var t = localStorage.getItem("step-duel-theme"); if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t); } catch (_) {}
+</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Step Duel">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -22,6 +26,13 @@
   --font:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:light;
 }
+/* AMOLED dark: true black so OLED pixels switch off. Follows the phone unless the toggle overrides it. */
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#000000; --ink:#f3f4f6; --muted:#8b93a1; --line:#1c1f26; --soft:#0e1014;
+  --blue:#4f8cff; --blue-soft:#0b1a36; --orange:#ff8a3d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#000000; --ink:#f3f4f6; --muted:#8b93a1; --line:#1c1f26; --soft:#0e1014;
+  --blue:#4f8cff; --blue-soft:#0b1a36; --orange:#ff8a3d; color-scheme:dark}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5}
@@ -37,6 +48,12 @@ h2{font-size:15px;font-weight:700;margin:0}
 .sync i{width:7px;height:7px;border-radius:50%;background:#cbd5e1}
 .sync.on i{background:#22c55e}
 .sync.off i{background:var(--orange)}
+.right{display:flex;align-items:center;gap:10px}
+.theme{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;display:grid;place-items:center;padding:0}
+.theme svg{width:18px;height:18px}
+.theme .sun{display:none}
+:root[data-theme="dark"] .theme .sun{display:block} :root[data-theme="dark"] .theme .moon{display:none}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .theme .sun{display:block}:root:not([data-theme="light"]) .theme .moon{display:none}}
 
 .who{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .who button{font:inherit;font-weight:700;font-size:16px;padding:14px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer;transition:border-color .15s,background .15s}
@@ -76,7 +93,13 @@ hr{border:none;border-top:1px solid var(--line);margin:0}
 <div class="wrap">
   <div class="top">
     <h1>Step Duel<span>.</span></h1>
-    <span class="sync" id="sync"><i></i><span id="syncText">Connecting…</span></span>
+    <div class="right">
+      <span class="sync" id="sync"><i></i><span id="syncText">Connecting…</span></span>
+      <button class="theme" type="button" id="themeBtn" aria-label="Switch light or dark theme">
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+    </div>
   </div>
 
   <form class="gate" id="gate" hidden novalidate>

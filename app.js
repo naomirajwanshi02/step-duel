@@ -64,7 +64,7 @@
     const h = P.map(p => `<span><i style="background:${COLOR[p]}"></i>${NAME[p]}</span>`).join("");
     $("lg1").innerHTML = h; $("lg2").innerHTML = h;
   }
-  function niceMax(v) { if (v <= 0) return 10000; const m = Math.pow(10, Math.floor(Math.log10(v))); for (const k of [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (k * m >= v) return k * m; return 10 * m; }
+  function niceMax(v) { if (v <= 0) return 10000; const m = Math.pow(10, Math.floor(Math.log10(v))); for (const k of [1, 1.2, 1.6, 2, 2.4, 4, 8, 10]) if (k * m >= v) return k * m; return 10 * m; }
 
   function renderSteps() {
     const days = []; for (let i = 13; i >= 0; i--) days.push(addDays(today(), -i));
@@ -100,7 +100,7 @@
       if (!sr.length) return;
       const c = COLOR[P[k]];
       if (sr.length > 1) g += `<polyline points="${sr.map(e => `${x(e.day).toFixed(1)},${y(e.weight).toFixed(1)}`).join(" ")}" fill="none" stroke="${c}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
-      sr.forEach((e, i) => { const last = i === sr.length - 1; g += `<circle cx="${x(e.day)}" cy="${y(e.weight)}" r="${last ? 4.5 : 2.5}" fill="${c}" stroke="#fff" stroke-width="${last ? 2 : 0}"><title>${NAME[P[k]]} · ${short(e.day)}: ${e.weight} kg</title></circle>`; });
+      sr.forEach((e, i) => { const last = i === sr.length - 1; g += `<circle cx="${x(e.day)}" cy="${y(e.weight)}" r="${last ? 4.5 : 2.5}" fill="${c}" stroke="var(--bg)" stroke-width="${last ? 2 : 0}"><title>${NAME[P[k]]} · ${short(e.day)}: ${e.weight} kg</title></circle>`; });
       const le = sr[sr.length - 1];
       const lx = x(le.day), anchor = lx < W / 2 ? "start" : "end";
       g += `<text x="${anchor === "start" ? lx + 6 : Math.min(lx, W - R - 2)}" y="${y(le.weight) - 9}" text-anchor="${anchor}"style="fill:${c};font-weight:700;font-size:11px">${le.weight}</text>`;
@@ -201,6 +201,19 @@
       else say("Couldn't save. Check your internet and try again.", "err");
     } finally { $("saveBtn").disabled = false; }
   });
+
+  // ---------- theme ----------
+  const darkMQ = window.matchMedia("(prefers-color-scheme: dark)");
+  const isDark = () => { const t = document.documentElement.getAttribute("data-theme"); return t ? t === "dark" : darkMQ.matches; };
+  const syncThemeColor = () => { $("themeColor").setAttribute("content", isDark() ? "#000000" : "#ffffff"); };
+  $("themeBtn").addEventListener("click", () => {
+    const next = isDark() ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    store.set("step-duel-theme", next);
+    syncThemeColor();
+  });
+  darkMQ.addEventListener && darkMQ.addEventListener("change", syncThemeColor);
+  syncThemeColor();
 
   // ---------- boot ----------
   const w = store.get("step-duel-who"); if (P.includes(w)) state.who = w;
