@@ -205,13 +205,15 @@
   // ---------- theme ----------
   const darkMQ = window.matchMedia("(prefers-color-scheme: dark)");
   const isDark = () => { const t = document.documentElement.getAttribute("data-theme"); return t ? t === "dark" : darkMQ.matches; };
-  const syncThemeColor = () => { $("themeColor").setAttribute("content", isDark() ? "#000000" : "#ffffff"); };
-  $("themeBtn").addEventListener("click", () => {
-    const next = isDark() ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", next);
-    store.set("step-duel-theme", next);
-    syncThemeColor();
-  });
+  const syncThemeColor = () => {
+    const dark = isDark();
+    $("themeColor").setAttribute("content", dark ? "#000000" : "#ffffff");
+    $("th-light").setAttribute("aria-pressed", String(!dark));
+    $("th-dark").setAttribute("aria-pressed", String(dark));
+  };
+  const setTheme = t => { document.documentElement.setAttribute("data-theme", t); store.set("step-duel-theme", t); syncThemeColor(); };
+  $("th-light").addEventListener("click", () => setTheme("light"));
+  $("th-dark").addEventListener("click", () => setTheme("dark"));
   darkMQ.addEventListener && darkMQ.addEventListener("change", syncThemeColor);
   syncThemeColor();
 
