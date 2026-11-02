@@ -165,6 +165,22 @@
     finally { $("passBtn").disabled = false; }
   });
 
+  $("exportBtn").addEventListener("click", async () => {
+    const m = $("exportMsg"); m.className = "msg"; m.textContent = "";
+    if (remote && !state.pass) { m.textContent = "Unlock with the passcode first."; m.className = "msg err"; return; }
+    let rows = state.entries;
+    if (remote) { try { rows = await fetchEntries(); state.entries = rows; } catch (_) { /* fall back to what's on screen */ } }
+    if (!rows.length) { m.textContent = "Nothing to export yet."; m.className = "msg err"; return; }
+    const sorted = [...rows].sort((a, b) => a.day === b.day ? (a.player < b.player ? -1 : 1) : (a.day < b.day ? -1 : 1));
+    const csv = ["date,person,steps,weight_kg"].concat(sorted.map(e => [e.day, NAME[e.player] || e.player, e.steps ?? "", e.weight ?? ""].join(","))).join("\r\n") + "\r\n";
+    const url = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url; a.download = `step-duel-${today()}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    m.textContent = `Exported ${sorted.length} entries.`; m.className = "msg ok";
+  });
+
   $("lockBtn").addEventListener("click", () => {
     store.del("step-duel-pass"); state.pass = ""; state.entries = []; clearInterval(timer);
     render(); fillForm(); showGate(true); setSync("", "Locked");

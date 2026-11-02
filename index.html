@@ -84,7 +84,10 @@ svg{width:100%;height:auto;display:block}
 svg text{fill:var(--muted);font-family:var(--font);font-size:10px;font-variant-numeric:tabular-nums}
 .empty{padding:30px 12px;text-align:center;color:var(--muted);font-size:14px;background:var(--soft);border-radius:14px}
 hr{border:none;border-top:1px solid var(--line);margin:0}
-.foot{text-align:center}
+.foot{display:grid;justify-items:center;gap:6px}
+.export{font:inherit;font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+.export:hover{border-color:var(--blue);color:var(--blue)}
+.export svg{width:16px;height:16px}
 .link{font:inherit;font-size:12px;color:var(--muted);background:none;border:none;text-decoration:underline;cursor:pointer;padding:4px}
 
 @media (max-width:460px){.fields{grid-template-columns:1fr 1fr}.fields label:first-child{grid-column:1/-1}}
@@ -144,7 +147,14 @@ hr{border:none;border-top:1px solid var(--line);margin:0}
     <div id="weightChart"></div>
   </section>
 
-  <div class="foot"><button class="link" type="button" id="lockBtn" hidden>Lock this phone</button></div>
+  <div class="foot">
+    <button class="export" type="button" id="exportBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+      Export all entries (CSV)
+    </button>
+    <p class="msg" id="exportMsg" role="status"></p>
+    <button class="link" type="button" id="lockBtn" hidden>Lock this phone</button>
+  </div>
 </div>
 
 <script>
@@ -166,7 +176,7 @@ hr{border:none;border-top:1px solid var(--line);margin:0}
   })();
 </script>
 <!-- Bump ?v= on every change so phones never mix a new page with an old cached script. -->
-<script src="config.js?v=6"></script>
-<script src="app.js?v=6"></script>
+<script src="config.js?v=7"></script>
+<script src="app.js?v=7"></script>
 </body>
 </html>
