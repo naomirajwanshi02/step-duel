@@ -7,6 +7,7 @@ create or replace function public.passcode_ok()
 returns boolean
 language sql
 stable
+set search_path = ''
 as $$
   select coalesce(current_setting('request.headers', true)::json ->> 'x-passcode', '') = 'CHANGE-ME'
 $$;
